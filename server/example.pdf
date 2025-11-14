@@ -1,0 +1,77 @@
+Knostic Home Assignment
+Goal
+Build a small full-stack app where you make the key design decisions. We care more about your
+choices and reasoning than about specific frameworks or patterns.
+The Problem
+Tiny Inventory — Build a small inventory management system that tracks stores and the
+products they carry. Each store can have multiple products, and each product includes basic
+details such as name, category, price, and quantity in stock. The system should allow managing
+stores and products, viewing products per store or across all stores, and filtering or paginating
+product lists (for example, by category, price range, or stock level).
+Minimal Requirements
+Backend
+● TypeScript HTTP server exposing a REST API with at least two related resources (e.g.,
+Store ↔ Product).
+● Include at least one non-trivial operation (something beyond CRUD — e.g., aggregation
+or computed data).
+● Include filtering and pagination on one list endpoint.
+● Any persistence is acceptable (in-memory, file, SQLite, Postgres, etc.).
+Frontend
+● React (TypeScript) app with at least two screens (list view + detail/edit view).
+● Handle loading and error states gracefully.
+● Provide seed data so reviewers can interact immediately.
+● Include basic input validation and clear error responses.
+Infrastructure
+● Dockerize everything so it runs with a single command (e.g., docker compose up
+--build).
+What We’ll Look For
+● Clarity of choices and explanations.
+● Address all aspects of making this application production-ready.
+● API semantics (routes, validation, pagination, error design).
+● Data modeling and querying.
+● UX basics (list/detail flow, loading/error/empty states).
+● Dev experience (simple Docker startup, clear project structure).
+• Testing quality and rationale
+• README clarity (decisions and trade-offs explained)
+
+Knostic Home Assignment
+Deliverables
+● Repo containing server/, web/, and Docker configuration
+● README with:
+○ Run instructions.
+○ API sketch (5–10 lines max).
+○ Decisions & Trade-offs section.
+○ Testing Approach section.
+○ If I had more time (3 bullets).
+Appendix / FAQ
+What is a non-trivial operation?
+A non-trivial operation goes beyond basic Create, Read, Update, Delete (CRUD) functions. It
+involves computations like summaries, aggregations, or metrics (e.g., "total inventory value by
+store" or "issues closed per day").
+What does "provide seed data" mean?
+Providing seed data means your application starts with pre-populated example data, allowing
+reviewers to immediately interact with the system. This can be implemented via a startup script,
+an in-memory dataset, or a specific seed command.
+Do I have to use Postgres?
+No, you are free to choose any persistence option. Please explain your choice in the
+README.md 
+file.
+How much should I focus on the frontend versus the backend?
+Strive for a balanced approach between frontend and backend development. However, it's
+acceptable to lean towards one, provided you explain your focus and reasoning in the
+README.md
+.
+What kind of filtering and pagination do you expect?
+You should implement at least one list endpoint that includes both filtering and pagination
+capabilities. The specific implementation style is at your discretion.
+
+Knostic Home Assignment
+Do I need authentication?
+No, authentication is not required. It's optional if you wish to demonstrate it. If you do implement
+it, keep it simple (e.g., using a hardcoded user or token).
+How polished should the submission be?
+Your submission should run cleanly, feature readable code, and demonstrate basic validation
+and error handling.
+What if I run out of time?
+That’s fine. Just note what’s missing, what you’d do next, and any assumptions in your
+README.

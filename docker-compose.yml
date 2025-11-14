@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: inventory
       POSTGRES_DB: inventory
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -31,7 +31,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "npm run db:migrate && npm run db:seed && npm start"
+    command: sh -c "npm run db:migrate && npm run db:seed && npx tsx src/server.ts"
     volumes:
       - ./server/src:/app/src
 

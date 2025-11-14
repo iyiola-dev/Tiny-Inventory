@@ -9,13 +9,19 @@ A full-stack inventory management system for tracking stores and their products.
 docker compose up --build
 
 # The application will:
-# 1. Start PostgreSQL
-# 2. Run migrations
-# 3. Seed sample data
+# 1. Start PostgreSQL database
+# 2. Run database migrations
+# 3. Seed sample data (3 stores, 12 products)
 # 4. Start the API server on http://localhost:3000
+# 5. Start the React frontend on http://localhost:5173
 ```
 
-**Note:** First run may take 30-60 seconds for database initialization and seeding.
+**Access the application:**
+- **Frontend:** http://localhost:5173
+- **API:** http://localhost:3000
+- **Health check:** http://localhost:3000/health
+
+**Note:** First run takes 1-2 minutes for all services to initialize.
 
 ### Development Setup
 
@@ -115,20 +121,55 @@ Goes beyond basic CRUD by computing business metrics with SQL aggregations:
 **Example response:**
 ```json
 {
-  "summary": {
-    "totalProducts": 12,
-    "totalValue": 15789.88,
-    "avgProductPrice": 449.99,
-    "lowStockItems": 3,
-    "outOfStockItems": 1,
-    "categories": 4
-  },
+  "totalProducts": 12,
+  "totalValue": 15789.88,
+  "avgProductPrice": 449.99,
+  "lowStockItems": 3,
+  "outOfStockItems": 1,
+  "categories": 4,
   "categoryBreakdown": [
     { "category": "Laptops", "count": 2, "totalValue": 5600.00 },
     { "category": "Audio", "count": 3, "totalValue": 2100.00 }
   ]
 }
 ```
+
+## Frontend Architecture
+
+**Tech Stack:**
+- **Vite + React 18** - Fast build tool and modern React
+- **TypeScript** - Type safety throughout the application
+- **TanStack Query** - Server state management (eliminates need for Redux!)
+- **React Router** - Client-side routing
+- **Tailwind CSS** - Utility-first styling for rapid development
+- **Fetch API** - Type-safe API client with error handling
+
+**Key Features:**
+- **Store List Page** - Paginated list of all stores with navigation
+- **Store Detail Page** - Real-time analytics dashboard showing inventory metrics
+- **Product List Page** - Filterable product catalog by category with search
+- **Loading & Error States** - Graceful handling of all async operations
+- **Responsive Design** - Works on desktop, tablet, and mobile
+- **Type-safe API Integration** - Full TypeScript coverage from API to UI
+
+**Architecture Decisions:**
+
+**TanStack Query over Redux/Context**
+- Eliminates boilerplate for server state management
+- Automatic caching, refetching, and background updates
+- Built-in loading/error states
+- Trade-off: Best for server-driven apps (which this is)
+
+**Functional Components Only**
+- Hooks-based architecture throughout
+- Simpler than class components
+- Easier to test and understand
+
+**Tailwind over Custom CSS**
+- Faster development with utility classes
+- Consistent design system
+- No CSS file bloat
+- Trade-off: HTML can look verbose, but benefits outweigh costs
 
 ## Testing Approach
 
@@ -176,6 +217,6 @@ Tests focus on **API contracts** and **business logic** rather than implementati
 
 ## If I Had More Time
 
-- **Frontend React application** - Product list/detail views with React Query, store management dashboard, analytics visualization, loading/error states, responsive design with Tailwind CSS
-- **Expand test coverage** - Add E2E tests for critical user flows, test analytics calculation accuracy with real data scenarios, add database integration tests with test containers
-- **API documentation with Swagger/OpenAPI** - Auto-generated interactive docs from Zod schemas, request/response examples, API versioning strategy
+- **Enhanced UI & UX** - More polished design with animations, better mobile responsiveness, dark mode support, drag-and-drop for product management, real-time updates with WebSockets
+- **Expand test coverage** - Add E2E tests with Playwright for critical user flows, frontend component tests with React Testing Library, database integration tests with test containers, test analytics accuracy with real data scenarios
+- **Production features** - API documentation with Swagger/OpenAPI auto-generated from Zod schemas, rate limiting and security headers, caching layer with Redis, monitoring and observability with Prometheus/Grafana

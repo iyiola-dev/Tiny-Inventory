@@ -82,14 +82,12 @@ export async function getStoreAnalytics(storeId: string) {
     .groupBy(products.category);
 
   return {
-    summary: result[0] || {
-      totalProducts: 0,
-      totalValue: 0,
-      avgProductPrice: 0,
-      lowStockItems: 0,
-      outOfStockItems: 0,
-      categories: 0,
-    },
+    totalProducts: result[0]?.totalProducts || 0,
+    totalValue: result[0]?.totalValue || 0,
+    avgProductPrice: result[0]?.avgProductPrice || 0,
+    lowStockItems: result[0]?.lowStockItems || 0,
+    outOfStockItems: result[0]?.outOfStockItems || 0,
+    categories: result[0]?.categories || 0,
     categoryBreakdown,
   };
 }

@@ -1,6 +1,10 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 
 export const Layout = () => {
+  const location = useLocation();
+  const isStoresPage = location.pathname === '/' || location.pathname.startsWith('/stores');
+  const isProductsPage = location.pathname.startsWith('/products');
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm">
@@ -13,13 +17,21 @@ export const Layout = () => {
               <div className="ml-10 flex items-center space-x-4">
                 <Link
                   to="/"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isStoresPage
+                      ? 'text-black-900 font-bold'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
                 >
                   Stores
                 </Link>
                 <Link
                   to="/products"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isProductsPage
+                      ? 'text-black-900 font-bold'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
                 >
                   Products
                 </Link>

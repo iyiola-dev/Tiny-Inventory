@@ -40,10 +40,6 @@ async function handleResponse<T>(response: Response): Promise<T> {
   
   // Handle standardized success response
   if (body.success === true && 'data' in body) {
-    // If there's pagination metadata, attach it to the data
-    if (body.meta?.pagination) {
-      return { ...body.data, pagination: body.meta.pagination } as T;
-    }
     return body.data as T;
   }
   

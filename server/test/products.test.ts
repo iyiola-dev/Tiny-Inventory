@@ -45,8 +45,7 @@ describe('Products Routes', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         success: true,
-        data: mockResponse.products,
-        meta: { pagination: mockResponse.pagination },
+        data: mockResponse,
       });
     });
 

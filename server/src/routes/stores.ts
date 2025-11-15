@@ -19,7 +19,7 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const query = paginationSchema.parse(request.query);
       const result = await storesService.getAllStores(query.page, query.limit);
-      return sendSuccess(reply, result.stores, { pagination: result.pagination });
+      return sendSuccess(reply, result);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return validationError(reply, error.errors);
@@ -77,7 +77,7 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
         query.category
       );
       
-      return sendSuccess(reply, result.products, { pagination: result.pagination });
+      return sendSuccess(reply, result);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return validationError(reply, error.errors);

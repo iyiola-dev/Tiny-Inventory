@@ -46,8 +46,7 @@ describe('Stores Routes', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         success: true,
-        data: mockResponse.stores,
-        meta: { pagination: mockResponse.pagination },
+        data: mockResponse,
       });
     });
 
@@ -168,8 +167,7 @@ describe('Stores Routes', () => {
       const body = JSON.parse(response.body);
       expect(body).toEqual({
         success: true,
-        data: mockResponse.products,
-        meta: { pagination: mockResponse.pagination },
+        data: mockResponse,
       });
     });
 

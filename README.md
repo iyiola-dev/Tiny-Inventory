@@ -123,12 +123,24 @@ DELETE /products/:id              # Soft delete product
 
 All API responses follow a consistent structure:
 
-**Success Response:**
+**Success Response (Single Resource):**
 ```json
 {
   "success": true,
-  "data": { ... },
-  "meta": {
+  "data": {
+    "id": "123",
+    "name": "Store Name",
+    "location": "New York"
+  }
+}
+```
+
+**Success Response (Paginated List):**
+```json
+{
+  "success": true,
+  "data": {
+    "stores": [...],
     "pagination": {
       "page": 1,
       "limit": 10,
@@ -155,7 +167,8 @@ All API responses follow a consistent structure:
 - Consistent structure across all endpoints
 - Easy to handle on frontend with `response.success` check
 - Standardized error codes (NOT_FOUND, VALIDATION_ERROR, BAD_REQUEST)
-- Pagination metadata always in the same location
+- Pagination and data together in one object
+- Self-documenting resource names (stores, products)
 
 ### Error Handling
 
@@ -365,10 +378,11 @@ npm run test:watch
 - Request/response logging with timing information
 
 **Standardized API Response Format**
-- Consistent `{ success, data, error, meta }` structure across all endpoints
+- Consistent `{ success, data, error }` structure across all endpoints
 - Frontend can rely on predictable response shape
 - Error handling simplified with standard codes (NOT_FOUND, VALIDATION_ERROR, etc.)
-- Pagination metadata consistently located in `meta.pagination`
+- Pagination and resource data together in `data` object (e.g., `{ stores: [...], pagination: {...} }`)
+- Self-documenting resource names instead of generic wrappers
 - Easier to build API client and error handling utilities
 
 **Soft Deletes over Hard Deletes**

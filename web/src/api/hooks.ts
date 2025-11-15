@@ -2,13 +2,13 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from './client';
-import type { Store, Product, StoreAnalytics, PaginationResponse, QueryParams } from '../types/api';
+import type { Store, Product, StoreAnalytics, StoresResponse, ProductsResponse, QueryParams } from '../types/api';
 
 // Store hooks
 export const useStores = (params?: QueryParams) => {
   return useQuery({
     queryKey: ['stores', params],
-    queryFn: () => api.get<PaginationResponse<Store>>('/stores', params),
+    queryFn: () => api.get<StoresResponse>('/stores', params),
   });
 };
 
@@ -31,7 +31,7 @@ export const useStoreAnalytics = (id: string) => {
 export const useStoreProducts = (storeId: string, params?: QueryParams) => {
   return useQuery({
     queryKey: ['store-products', storeId, params],
-    queryFn: () => api.get<PaginationResponse<Product>>(`/stores/${storeId}/products`, params),
+    queryFn: () => api.get<ProductsResponse>(`/stores/${storeId}/products`, params),
     enabled: !!storeId,
   });
 };
@@ -50,7 +50,7 @@ export const useCreateStore = () => {
 export const useProducts = (params?: QueryParams) => {
   return useQuery({
     queryKey: ['products', params],
-    queryFn: () => api.get<PaginationResponse<Product>>('/products', params),
+    queryFn: () => api.get<ProductsResponse>('/products', params),
   });
 };
 

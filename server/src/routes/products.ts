@@ -31,7 +31,7 @@ const productsRoutes: FastifyPluginAsync = async (fastify) => {
       const { page, limit, ...filters } = query;
       
       const result = await productsService.getAllProducts(page, limit, filters);
-      return sendSuccess(reply, result.products, { pagination: result.pagination });
+      return sendSuccess(reply, result);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return validationError(reply, error.errors);

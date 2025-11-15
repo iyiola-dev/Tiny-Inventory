@@ -33,14 +33,21 @@ export interface StoreAnalytics {
   }>;
 }
 
-export interface PaginationResponse<T> {
-  [key: string]: T[] | any;
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface StoresResponse {
+  stores: Store[];
+  pagination: Pagination;
+}
+
+export interface ProductsResponse {
+  products: Product[];
+  pagination: Pagination;
 }
 
 export interface QueryParams {

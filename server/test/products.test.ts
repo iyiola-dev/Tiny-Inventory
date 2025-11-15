@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import Fastify from 'fastify';
-import productsRoutes from './products.js';
-import * as productsService from '../services/products.js';
+import productsRoutes from '../src/routes/products.js';
+import * as productsService from '../src/services/products.js';
 
-// Mock the products service
-vi.mock('../services/products.js', () => ({
+vi.mock('../src/services/products.js', () => ({
   getAllProducts: vi.fn(),
   getProductById: vi.fn(),
   createProduct: vi.fn(),
@@ -18,7 +17,6 @@ describe('Products Routes', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     
-    // Create a new Fastify instance for each test
     app = Fastify({ logger: false });
     await app.register(productsRoutes);
   });
@@ -44,7 +42,12 @@ describe('Products Routes', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual(mockResponse);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({
+        success: true,
+        data: mockResponse.products,
+        meta: { pagination: mockResponse.pagination },
+      });
     });
 
     it('should handle filtering by category', async () => {
@@ -76,7 +79,9 @@ describe('Products Routes', () => {
 
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
-      expect(body.error).toBe('Invalid query parameters');
+      expect(body.success).toBe(false);
+      expect(body.error.message).toBe('Validation failed');
+      expect(body.error.code).toBe('VALIDATION_ERROR');
     });
   });
 
@@ -97,7 +102,11 @@ describe('Products Routes', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual(mockProduct);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({
+        success: true,
+        data: mockProduct,
+      });
     });
 
     it('should return 404 when product not found', async () => {
@@ -109,14 +118,17 @@ describe('Products Routes', () => {
       });
 
       expect(response.statusCode).toBe(404);
-      expect(JSON.parse(response.body).error).toBe('Product not found');
+      const body = JSON.parse(response.body);
+      expect(body.success).toBe(false);
+      expect(body.error.message).toBe('Product not found');
+      expect(body.error.code).toBe('NOT_FOUND');
     });
   });
 
   describe('POST /products', () => {
     it('should create a new product', async () => {
       const newProduct = {
-        storeId: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID
+        storeId: '550e8400-e29b-41d4-a716-446655440000',
         name: 'New Product',
         category: 'Electronics',
         price: 199.99,
@@ -137,7 +149,11 @@ describe('Products Routes', () => {
       });
 
       expect(response.statusCode).toBe(201);
-      expect(JSON.parse(response.body)).toEqual(createdProduct);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({
+        success: true,
+        data: createdProduct,
+      });
     });
 
     it('should return 400 for invalid product data', async () => {
@@ -148,7 +164,10 @@ describe('Products Routes', () => {
       });
 
       expect(response.statusCode).toBe(400);
-      expect(JSON.parse(response.body).error).toBe('Invalid request body');
+      const body = JSON.parse(response.body);
+      expect(body.success).toBe(false);
+      expect(body.error.message).toBe('Validation failed');
+      expect(body.error.code).toBe('VALIDATION_ERROR');
     });
   });
 
@@ -171,7 +190,11 @@ describe('Products Routes', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual(updatedProduct);
+      const body = JSON.parse(response.body);
+      expect(body).toEqual({
+        success: true,
+        data: updatedProduct,
+      });
     });
 
     it('should return 404 when updating nonexistent product', async () => {
@@ -197,7 +220,11 @@ describe('Products Routes', () => {
         url: '/products/123',
       });
 
-      expect(response.statusCode).toBe(204);
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.success).toBe(true);
+      expect(body.data.message).toBe('Product deleted successfully');
+      expect(body.data.id).toBe('123');
     });
 
     it('should return 404 when deleting nonexistent product', async () => {

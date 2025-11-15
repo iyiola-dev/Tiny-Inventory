@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import * as storesService from '../services/stores.js';
+import { sendSuccess, notFoundError, validationError } from '../utils/response.js';
 
 const createStoreSchema = z.object({
   name: z.string().min(1).max(255),
@@ -18,10 +19,10 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const query = paginationSchema.parse(request.query);
       const result = await storesService.getAllStores(query.page, query.limit);
-      return result;
+      return sendSuccess(reply, result.stores, { pagination: result.pagination });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: 'Invalid query parameters', details: error.errors });
+        return validationError(reply, error.errors);
       }
       throw error;
     }
@@ -33,10 +34,10 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
     const store = await storesService.getStoreById(id);
     
     if (!store) {
-      return reply.status(404).send({ error: 'Store not found' });
+      return notFoundError(reply, 'Store');
     }
     
-    return store;
+    return sendSuccess(reply, store);
   });
 
   // POST /stores - Create new store
@@ -44,10 +45,10 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const data = createStoreSchema.parse(request.body);
       const store = await storesService.createStore(data);
-      return reply.status(201).send(store);
+      return sendSuccess(reply, store, undefined, 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: 'Invalid request body', details: error.errors });
+        return validationError(reply, error.errors);
       }
       throw error;
     }
@@ -66,7 +67,7 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
       // Check if store exists
       const store = await storesService.getStoreById(id);
       if (!store) {
-        return reply.status(404).send({ error: 'Store not found' });
+        return notFoundError(reply, 'Store');
       }
       
       const result = await storesService.getStoreProducts(
@@ -76,10 +77,10 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
         query.category
       );
       
-      return result;
+      return sendSuccess(reply, result.products, { pagination: result.pagination });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: 'Invalid query parameters', details: error.errors });
+        return validationError(reply, error.errors);
       }
       throw error;
     }
@@ -92,11 +93,11 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
     // Check if store exists
     const store = await storesService.getStoreById(id);
     if (!store) {
-      return reply.status(404).send({ error: 'Store not found' });
+      return notFoundError(reply, 'Store');
     }
     
     const analytics = await storesService.getStoreAnalytics(id);
-    return analytics;
+    return sendSuccess(reply, analytics);
   });
 };
 

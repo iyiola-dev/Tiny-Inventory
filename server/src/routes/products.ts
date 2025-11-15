@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import * as productsService from '../services/products.js';
+import { sendSuccess, notFoundError, validationError, badRequestError } from '../utils/response.js';
 
 const createProductSchema = z.object({
   storeId: z.string().uuid(),
@@ -30,10 +31,10 @@ const productsRoutes: FastifyPluginAsync = async (fastify) => {
       const { page, limit, ...filters } = query;
       
       const result = await productsService.getAllProducts(page, limit, filters);
-      return result;
+      return sendSuccess(reply, result.products, { pagination: result.pagination });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: 'Invalid query parameters', details: error.errors });
+        return validationError(reply, error.errors);
       }
       throw error;
     }
@@ -45,10 +46,10 @@ const productsRoutes: FastifyPluginAsync = async (fastify) => {
     const product = await productsService.getProductById(id);
     
     if (!product) {
-      return reply.status(404).send({ error: 'Product not found' });
+      return notFoundError(reply, 'Product');
     }
     
-    return product;
+    return sendSuccess(reply, product);
   });
 
   // POST /products - Create new product
@@ -59,10 +60,10 @@ const productsRoutes: FastifyPluginAsync = async (fastify) => {
         ...data,
         price: data.price.toString(),
       });
-      return reply.status(201).send(product);
+      return sendSuccess(reply, product, undefined, 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: 'Invalid request body', details: error.errors });
+        return validationError(reply, error.errors);
       }
       throw error;
     }
@@ -75,12 +76,12 @@ const productsRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const data = updateProductSchema.parse(request.body);
       
-      // Check if any fields are actually being updated
+      
       if (Object.keys(data).length === 0) {
-        return reply.status(400).send({ error: 'No fields to update' });
+        return badRequestError(reply, 'No fields to update');
       }
       
-      // Convert price to string if present
+    
       const updateData: any = { ...data };
       if (data.price !== undefined) {
         updateData.price = data.price.toString();
@@ -89,29 +90,29 @@ const productsRoutes: FastifyPluginAsync = async (fastify) => {
       const product = await productsService.updateProduct(id, updateData);
       
       if (!product) {
-        return reply.status(404).send({ error: 'Product not found' });
+        return notFoundError(reply, 'Product');
       }
       
-      return product;
+      return sendSuccess(reply, product);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return reply.status(400).send({ error: 'Invalid request body', details: error.errors });
+        return validationError(reply, error.errors);
       }
       throw error;
     }
   });
 
-  // DELETE /products/:id - Delete product
+  // DELETE /products/:id - Delete product (soft delete)
   fastify.delete('/products/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     
     const product = await productsService.deleteProduct(id);
     
     if (!product) {
-      return reply.status(404).send({ error: 'Product not found' });
+      return notFoundError(reply, 'Product');
     }
     
-    return reply.status(204).send();
+    return sendSuccess(reply, { message: 'Product deleted successfully', id: product.id });
   });
 };
 

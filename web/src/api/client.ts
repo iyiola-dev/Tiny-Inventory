@@ -2,19 +2,53 @@
 
 const API_BASE_URL = '/api';
 
-class ApiError extends Error {
-  constructor(public status: number, message: string, public data?: any) {
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    code?: string;
+    details?: any;
+  };
+  meta?: {
+    pagination?: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+}
+
+export class ApiError extends Error {
+  constructor(public status: number, message: string, public code?: string, public details?: any) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
+  const body = await response.json().catch(() => ({}));
+  
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw new ApiError(response.status, error.message || error.error || 'Request failed', error);
+    // Handle standardized error response
+    const errorMessage = body.error?.message || body.message || body.error || 'Request failed';
+    const errorCode = body.error?.code;
+    const errorDetails = body.error?.details;
+    throw new ApiError(response.status, errorMessage, errorCode, errorDetails);
   }
-  return response.json();
+  
+  // Handle standardized success response
+  if (body.success === true && 'data' in body) {
+    // If there's pagination metadata, attach it to the data
+    if (body.meta?.pagination) {
+      return { ...body.data, pagination: body.meta.pagination } as T;
+    }
+    return body.data as T;
+  }
+  
+  // Fallback for non-standardized responses (backwards compatibility)
+  return body as T;
 }
 
 export const api = {

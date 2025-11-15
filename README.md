@@ -42,15 +42,58 @@ npm run dev
 
 ## API Sketch
 
+### Endpoints
+
 ```
 GET    /stores                    # List stores (paginated)
 POST   /stores                    # Create store
+GET    /stores/:id                # Get store details
+GET    /stores/:id/products       # List store products (paginated)
 GET    /stores/:id/analytics      # Store analytics (non-trivial: aggregations, metrics)
 GET    /products?category=X       # List products (filtered, paginated)
+GET    /products/:id              # Get product details
 POST   /products                  # Create product
 PATCH  /products/:id              # Update product
-DELETE /products/:id              # Delete product
+DELETE /products/:id              # Soft delete product
 ```
+
+### Standardized Response Format
+
+All API responses follow a consistent structure:
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 50,
+      "totalPages": 5
+    }
+  }
+}
+```
+
+**Error Response:**
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Resource not found",
+    "code": "NOT_FOUND",
+    "details": { ... }
+  }
+}
+```
+
+**Benefits:**
+- Consistent structure across all endpoints
+- Easy to handle on frontend with `response.success` check
+- Standardized error codes (NOT_FOUND, VALIDATION_ERROR, BAD_REQUEST)
+- Pagination metadata always in the same location
 
 ## Decisions & Trade-offs
 
@@ -103,6 +146,13 @@ DELETE /products/:id              # Delete product
 - Pretty logging in development with `pino-pretty`
 - JSON logs in production for log aggregation
 - Request/response logging with timing
+
+**Standardized API Response Format**
+- Consistent `{ success, data, error, meta }` structure across all endpoints
+- Frontend can rely on predictable response shape
+- Error handling simplified with standard codes (NOT_FOUND, VALIDATION_ERROR, etc.)
+- Pagination metadata consistently located in `meta.pagination`
+- Backwards compatible: Frontend client handles both old and new formats during transition
 
 ### Non-trivial Operation
 
@@ -175,18 +225,14 @@ Goes beyond basic CRUD by computing business metrics with SQL aggregations:
 
 ### Implementation
 
-**Unit Tests** (Services) - `src/services/*.test.ts`
-- Core business logic (pagination calculations, offsets)
-- Edge cases (empty results, boundary conditions)
-- Pure function testing without complex mocking
-- Example: Pagination math verification
-
-**Integration Tests** (Routes) - `src/routes/*.test.ts`
+**Integration Tests** (Routes) - `test/*.test.ts`
 - Full HTTP request/response cycle using Fastify's inject
-- Validation error handling (400s)
+- Validation error handling (400s with standardized error responses)
 - Not found scenarios (404s)
 - CRUD operations end-to-end
-- Example: Products API contract tests
+- Standardized API response format verification
+- Service layer mocked to isolate route logic
+- Example: Products and Stores API contract tests
 
 **Test Framework: Vitest**
 - Fast, modern test runner with native ESM support
@@ -203,15 +249,17 @@ npm run test:watch    # Watch mode
 ```
 
 ### Coverage Focus
-- API contracts (request/response shapes, status codes)
-- Error handling (validation, not found, server errors)
-- Pagination logic (correct page calculations)
-- Filtering combinations
+- API contracts (standardized response shapes, status codes)
+- Error handling (validation errors with VALIDATION_ERROR code, not found with NOT_FOUND code)
+- Pagination metadata in response
+- Success/error response structure consistency
+- CRUD operations for both stores and products
 
 ### Rationale
-Tests focus on **API contracts** and **business logic** rather than implementation details:
-- **Service tests** verify calculations (pagination math) without mocking database internals
-- **Route tests** verify HTTP behavior and error handling with service mocks
+Tests focus on **API contracts** rather than implementation details:
+- **Route tests** verify HTTP behavior and standardized response format with service mocks
+- Validates that all endpoints return consistent `{ success, data, error, meta }` structure
+- Ensures error codes (NOT_FOUND, VALIDATION_ERROR, BAD_REQUEST) are correct
 - Avoids brittle tests tied to ORM query builder implementation
 - Fast, simple, and easy to understand for reviewers
 

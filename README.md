@@ -225,43 +225,67 @@ Goes beyond basic CRUD by computing business metrics with SQL aggregations:
 
 ### Implementation
 
-**Integration Tests** (Routes) - `test/*.test.ts`
+**Route Tests** - `test/*.test.ts`
 - Full HTTP request/response cycle using Fastify's inject
 - Validation error handling (400s with standardized error responses)
 - Not found scenarios (404s)
 - CRUD operations end-to-end
 - Standardized API response format verification
 - Service layer mocked to isolate route logic
-- Example: Products and Stores API contract tests
+- Fast execution, no database required
 
-**Test Framework: Vitest**
+**Service Integration Tests** - `test/services/*.test.ts`
+- Real database testing using Testcontainers
+- Spins up PostgreSQL in Docker container
+- Tests actual SQL queries and transactions
+- Verifies business logic with real data
+- Tests soft delete functionality
+- Validates complex analytics calculations
+- Ensures pagination works correctly
+- Tests all filter combinations
+
+**Test Framework: Vitest + Testcontainers**
 - Fast, modern test runner with native ESM support
 - TypeScript support out of the box
 - Easy mocking with `vi.mock()`
-- Familiar Jest-like API
+- Testcontainers for real database integration testing
+- Automatic container lifecycle management
 
 ### Run Tests
 
 ```bash
 cd server
-npm test              # Run all tests once
-npm run test:watch    # Watch mode
+npm test                  # Run all tests (routes + services)
+npm run test:routes       # Run route tests only (fast)
+npm run test:services     # Run service integration tests (with containers)
+npm run test:integration  # Alias for test:services
+npm run test:watch        # Watch mode
 ```
 
 ### Coverage Focus
+
+**Route Tests:**
 - API contracts (standardized response shapes, status codes)
-- Error handling (validation errors with VALIDATION_ERROR code, not found with NOT_FOUND code)
-- Pagination metadata in response
-- Success/error response structure consistency
-- CRUD operations for both stores and products
+- Error handling (validation errors, not found)
+- Request/response transformation
+- Middleware behavior
+
+**Service Tests:**
+- Database operations (CRUD)
+- Soft delete implementation
+- Complex queries (analytics, aggregations)
+- Pagination logic with real data
+- Filter combinations
+- Transaction integrity
+- Edge cases with actual database
 
 ### Rationale
-Tests focus on **API contracts** rather than implementation details:
-- **Route tests** verify HTTP behavior and standardized response format with service mocks
-- Validates that all endpoints return consistent `{ success, data, error, meta }` structure
-- Ensures error codes (NOT_FOUND, VALIDATION_ERROR, BAD_REQUEST) are correct
-- Avoids brittle tests tied to ORM query builder implementation
-- Fast, simple, and easy to understand for reviewers
+Two-tier testing strategy for comprehensive coverage:
+- **Route tests** are fast and verify API contracts without database dependency
+- **Service tests** use real PostgreSQL to verify actual business logic and SQL queries
+- Testcontainers ensure consistent test environment across machines
+- No mocking of database = higher confidence in query correctness
+- Catches issues that mocks would miss (SQL syntax, type conversions, constraints)
 
 ## If I Had More Time
 

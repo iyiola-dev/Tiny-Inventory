@@ -11,7 +11,7 @@ export const StoreDetail = () => {
   const [productsPage, setProductsPage] = useState(1);
   const { data: store, isLoading: storeLoading, error: storeError } = useStore(id!);
   const { data: analytics, isLoading: analyticsLoading } = useStoreAnalytics(id!);
-  const { data: products, isLoading: productsLoading } = useStoreProducts(id!, { page: productsPage, limit: 10 });
+  const { data: products, isLoading: productsLoading } = useStoreProducts(id!, { page: productsPage, limit: 5 });
 
   if (storeLoading) return <LoadingSpinner message="Loading store..." />;
   if (storeError) return <ErrorMessage message="Failed to load store" />;
@@ -71,7 +71,7 @@ export const StoreDetail = () => {
       {/* Category Breakdown */}
       {analytics && analytics.categoryBreakdown.length > 0 && (
         <Card className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Category Breakdown</h2>
+          <h2 className="text-xl text-center font-semibold mb-9">Category Breakdown</h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
@@ -109,7 +109,7 @@ export const StoreDetail = () => {
 
       {/* Products Section */}
       <Card>
-        <h2 className="text-xl font-semibold mb-4">Products</h2>
+        <h2 className="text-xl text-center font-semibold mb-4">Products</h2>
         {productsLoading ? (
           <LoadingSpinner message="Loading products..." />
         ) : products && products.products.length > 0 ? (

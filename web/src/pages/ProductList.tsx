@@ -61,7 +61,7 @@ export const ProductList = () => {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data.products.map((product: Product) => (
-            <Card key={product.id} className="hover:shadow-lg transition-shadow">
+            <Card key={product.id} className="hover:shadow-md transition-shadow">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {product.name}
               </h3>

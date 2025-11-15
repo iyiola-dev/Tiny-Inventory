@@ -31,7 +31,7 @@ export const StoreList = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {data.stores.map((store: Store) => (
             <Link key={store.id} to={`/stores/${store.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
                   {store.name}
                 </h2>

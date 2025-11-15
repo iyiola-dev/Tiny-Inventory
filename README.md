@@ -11,7 +11,7 @@ docker compose up --build
 # The application will:
 # 1. Start PostgreSQL database
 # 2. Run database migrations
-# 3. Seed sample data (3 stores, 12 products)
+# 3. Seed sample data (5 stores, 60 products)
 # 4. Start the API server on http://localhost:3000
 # 5. Start the React frontend on http://localhost:5173
 ```

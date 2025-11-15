@@ -5,7 +5,7 @@ import { Card } from '../components/Card';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorMessage } from '../components/ErrorMessage';
 
-const categories = ['All', 'Smartphones', 'Laptops', 'Audio', 'Accessories', 'Tablets'];
+const categories = ['All', 'Smartphones', 'Laptops', 'Tablets', 'Audio', 'Accessories', 'Monitors', 'Gaming', 'Wearables', 'Smart Home', 'Cameras'];
 
 export const ProductList = () => {
   const [page, setPage] = useState(1);

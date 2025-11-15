@@ -2,11 +2,12 @@ import { pgTable, uuid, varchar, decimal, integer, timestamp } from 'drizzle-orm
 import { relations } from 'drizzle-orm';
 
 export const stores = pgTable('stores', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   location: varchar('location', { length: 255 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
 });
 
 export const products = pgTable('products', {
@@ -18,6 +19,7 @@ export const products = pgTable('products', {
   quantity: integer('quantity').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
 });
 
 // Relations

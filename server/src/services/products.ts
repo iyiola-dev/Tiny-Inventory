@@ -1,4 +1,4 @@
-import { eq, and, like, gte, lte, count } from 'drizzle-orm';
+import { eq, and, like, gte, lte, count, isNull } from 'drizzle-orm';
 import { db, products } from '../db/index.js';
 import type { NewProduct } from '../db/schema.js';
 
@@ -16,7 +16,7 @@ export async function getAllProducts(
   filters: ProductFilters = {}
 ) {
   const offset = (page - 1) * limit;
-  const conditions = [];
+  const conditions = [isNull(products.deletedAt)];
 
   if (filters.category) {
     conditions.push(eq(products.category, filters.category));
@@ -34,7 +34,7 @@ export async function getAllProducts(
     conditions.push(like(products.name, `%${filters.search}%`));
   }
 
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const whereClause = and(...conditions);
 
   const [items, totalCount] = await Promise.all([
     db
@@ -64,7 +64,7 @@ export async function getProductById(id: string) {
   const result = await db
     .select()
     .from(products)
-    .where(eq(products.id, id));
+    .where(and(eq(products.id, id), isNull(products.deletedAt)));
   return result[0] || null;
 }
 
@@ -90,8 +90,12 @@ export async function updateProduct(id: string, data: Partial<NewProduct>) {
 
 export async function deleteProduct(id: string) {
   const result = await db
-    .delete(products)
-    .where(eq(products.id, id))
+    .update(products)
+    .set({
+      deletedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(products.id, id), isNull(products.deletedAt)))
     .returning();
   return result[0] || null;
 }

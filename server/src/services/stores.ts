@@ -1,4 +1,4 @@
-import { eq, sql, count, and } from 'drizzle-orm';
+import { eq, sql, count, and, isNull } from 'drizzle-orm';
 import { db, stores, products } from '../db/index.js';
 import type { NewStore } from '../db/schema.js';
 
@@ -6,8 +6,8 @@ export async function getAllStores(page = 1, limit = 10) {
   const offset = (page - 1) * limit;
   
   const [items, totalCount] = await Promise.all([
-    db.select().from(stores).limit(limit).offset(offset),
-    db.select({ count: count() }).from(stores),
+    db.select().from(stores).where(isNull(stores.deletedAt)).limit(limit).offset(offset),
+    db.select({ count: count() }).from(stores).where(isNull(stores.deletedAt)),
   ]);
 
   return {
@@ -22,7 +22,7 @@ export async function getAllStores(page = 1, limit = 10) {
 }
 
 export async function getStoreById(id: string) {
-  const result = await db.select().from(stores).where(eq(stores.id, id));
+  const result = await db.select().from(stores).where(and(eq(stores.id, id), isNull(stores.deletedAt)));
   return result[0] || null;
 }
 
@@ -34,12 +34,12 @@ export async function createStore(data: NewStore) {
 export async function getStoreProducts(storeId: string, page = 1, limit = 10, category?: string) {
   const offset = (page - 1) * limit;
   
-  const conditions = [eq(products.storeId, storeId)];
+  const conditions = [eq(products.storeId, storeId), isNull(products.deletedAt)];
   if (category) {
     conditions.push(eq(products.category, category));
   }
   
-  const whereClause = conditions.length > 1 ? and(...conditions) : conditions[0];
+  const whereClause = and(...conditions);
   
   const [items, totalCount] = await Promise.all([
     db.select().from(products).where(whereClause).limit(limit).offset(offset),
@@ -69,7 +69,7 @@ export async function getStoreAnalytics(storeId: string) {
       categories: sql<number>`count(distinct ${products.category})`,
     })
     .from(products)
-    .where(eq(products.storeId, storeId));
+    .where(and(eq(products.storeId, storeId), isNull(products.deletedAt)));
 
   const categoryBreakdown = await db
     .select({
@@ -78,7 +78,7 @@ export async function getStoreAnalytics(storeId: string) {
       totalValue: sql<number>`sum(${products.price} * ${products.quantity})`,
     })
     .from(products)
-    .where(eq(products.storeId, storeId))
+    .where(and(eq(products.storeId, storeId), isNull(products.deletedAt)))
     .groupBy(products.category);
 
   return {
@@ -90,4 +90,16 @@ export async function getStoreAnalytics(storeId: string) {
     categories: result[0]?.categories || 0,
     categoryBreakdown,
   };
+}
+
+export async function deleteStore(id: string) {
+  const result = await db
+    .update(stores)
+    .set({
+      deletedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(stores.id, id), isNull(stores.deletedAt)))
+    .returning();
+  return result[0] || null;
 }

@@ -1,6 +1,6 @@
 # Tiny Inventory
 
-A full-stack inventory management system for tracking stores and their products. Built with Fastify, PostgreSQL, React, and TypeScript, this project demonstrates modern web development practices including real-time analytics, soft deletes, standardized API responses, and comprehensive testing with Testcontainers.
+A full-stack inventory management system for tracking stores and their products. Built with Fastify, PostgreSQL, React, and TypeScript, this project demonstrates modern web development practices.
 
 ## Quick Start
 

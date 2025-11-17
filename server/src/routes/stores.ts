@@ -45,7 +45,7 @@ const storesRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const data = createStoreSchema.parse(request.body);
       const store = await storesService.createStore(data);
-      return sendSuccess(reply, store, undefined, 201);
+      return sendSuccess(reply, store, 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return validationError(reply, error.errors);

@@ -8,21 +8,12 @@ export interface ApiResponse<T = any> {
     code?: string;
     details?: any;
   };
-  meta?: {
-    pagination?: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
-  };
 }
 
-export const successResponse = <T>(data: T, meta?: ApiResponse['meta']): ApiResponse<T> => {
+export const successResponse = <T>(data: T): ApiResponse<T> => {
   return {
     success: true,
     data,
-    ...(meta && { meta }),
   };
 };
 
@@ -44,10 +35,9 @@ export const errorResponse = (
 export const sendSuccess = <T>(
   reply: FastifyReply,
   data: T,
-  meta?: ApiResponse['meta'],
   statusCode = 200
 ) => {
-  return reply.status(statusCode).send(successResponse(data, meta));
+  return reply.status(statusCode).send(successResponse(data));
 };
 
 export const sendError = (

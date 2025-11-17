@@ -60,7 +60,7 @@ const productsRoutes: FastifyPluginAsync = async (fastify) => {
         ...data,
         price: data.price.toString(),
       });
-      return sendSuccess(reply, product, undefined, 201);
+      return sendSuccess(reply, product, 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return validationError(reply, error.errors);

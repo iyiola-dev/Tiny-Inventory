@@ -10,14 +10,6 @@ export interface ApiResponse<T = any> {
     code?: string;
     details?: any;
   };
-  meta?: {
-    pagination?: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
-  };
 }
 
 export class ApiError extends Error {
@@ -31,19 +23,18 @@ async function handleResponse<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => ({}));
   
   if (!response.ok) {
-    // Handle standardized error response
+    
     const errorMessage = body.error?.message || body.message || body.error || 'Request failed';
     const errorCode = body.error?.code;
     const errorDetails = body.error?.details;
     throw new ApiError(response.status, errorMessage, errorCode, errorDetails);
   }
   
-  // Handle standardized success response
+
   if (body.success === true && 'data' in body) {
     return body.data as T;
   }
   
-  // Fallback for non-standardized responses (backwards compatibility)
   return body as T;
 }
 
